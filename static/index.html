@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepurposeAI | Turn Content into Gold</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="max-w-3xl mx-auto py-12 px-4">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-indigo-600 mb-2">RepurposeAI</h1>
+            <p class="text-gray-600">Paste one article. Get a whole week of social media posts.</p>
+        </header>
+
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <textarea id="inputText" rows="6" class="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Paste your blog post or article here..."></textarea>
+            <button onclick="generateContent()" id="btn" class="w-full mt-4 bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition">
+                Generate Viral Posts ✨
+            </button>
+        </div>
+
+        <div id="loading" class="hidden text-center text-indigo-500 font-medium mb-8">
+            AI is thinking... this takes about 5 seconds...
+        </div>
+
+        <div id="outputContainer" class="hidden space-y-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Your Repurposed Content:</h2>
+            <div id="result" class="bg-white border border-indigo-100 rounded-xl p-6 text-gray-700 whitespace-pre-wrap leading-relaxed shadow-sm"></div>
+            <button onclick="copyResult()" class="text-sm text-indigo-600 font-medium underline">Copy all to clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        async function generateContent() {
+            const text = document.getElementById('inputText').value;
+            const btn = document.getElementById('btn');
+            const loading = document.getElementById('loading');
+            const output = document.getElementById('outputContainer');
+            const resultDiv = document.getElementById('result');
+
+            if(!text) return alert("Please paste some content first!");
+
+            // UI Feedback
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            loading.classList.remove('hidden');
+            output.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('text', text);
+
+                const response = await fetch('/repurpose', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                resultDiv.innerText = data.result;
+                output.classList.remove('hidden');
+            } catch (error) {
+                alert("Something went wrong. Check your API key!");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Generate Viral Posts ✨";
+                loading.classList.add('hidden');
+            }
+        }
+
+        function copyResult() {
+            const text = document.getElementById('result').innerText;
+            navigator.clipboard.writeText(text);
+            alert("Copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
